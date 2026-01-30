@@ -1,49 +1,81 @@
-# Git Tree Viewer
+# Git Tree Dump
 
-A PowerShell script that displays a graphical directory tree of files and folders tracked by Git in the current branch. The `git_treeview.ps1` script mimics the classic `tree` command but focuses exclusively on Git-tracked items, excluding untracked files, `.gitignore` entries, and build artifacts.
+A PowerShell script that displays a Git-tracked directory tree **or** dumps the contents of Git-tracked files.  
+It is driven entirely by `git ls-files`, ensuring only files tracked in the current Git branch are included.
+
+This project started as **git_treeview** (tree-only). It has since been expanded to support file dumping and script-specific ignore rules.
+
+---
 
 ## Features
-- Displays a clean, hierarchical view of Git-tracked files and directories.
+
+- Displays a clean, hierarchical view of Git-tracked files and directories (**Tree mode**).
+- Dumps the contents of Git-tracked files to the terminal (**Dump mode**).
 - Supports custom starting paths within the repository.
-- Allows limiting the tree depth with a `MaxDepth` parameter.
-- Counts and summarizes directories and files.
-- Handles cross-platform path differences (Windows/Linux/Mac).
+- Allows limiting output depth with `MaxDepth`.
+- Respects `.gitignore` automatically.
+- Supports an additional script-specific ignore file: `.git_tree_dumpignore`.
+- Counts and summarizes directories and files (Tree mode).
+- Cross-platform path handling (Windows / Linux / macOS).
+
+---
 
 ## Prerequisites
-- Git must be installed and accessible in your system's PATH.
+
+- Git installed and available in `PATH`.
 - PowerShell 5.1 or later.
 
+---
+
 ## Installation
-1. Clone or download the repository:
-   ```bash
-   git clone https://github.com/your-username/git_treeview.git
+
+1. Clone the repository:
+
+   ```powershell
+   git clone https://github.com/your-username/git_tree_dump.git
    ```
+
 2. Navigate to the repository folder:
-   ```bash
-   cd git_treeview
+
+   ```powershell
+   cd git_tree_dump_
    ```
-3. Ensure `git_treeview.ps1` is in your working directory.
+
+3. Ensure `git_tree_dump.ps1` is accessible in your working directory.
 
 ## Usage
-Run the script from a Git repository using PowerShell. Examples:
+
+### Tree mode (default)
+
+Displays a Git-tracked directory tree.
+
+   ```powershell
+   .\git_tree_dump.ps1
+   ```
+
+   ```powershell
+   .\git_tree_dump.ps1 -Path .\src
+   ```
+
+   ```powershell
+   .\git_tree_dump.ps1 -MaxDepth 2
+```
+
+### Dump mode
 
 ```powershell
-# Show the full Git-tracked tree from the repository root
-.\git_treeview.ps1
+.\git_tree_dump.ps1 -Mode Dump
 ```
 
 ```powershell
-# Show the tree starting from a specific folder
-.\git_treeview.ps1 -Path .\src
+.\git_tree_dump.ps1 -Mode Dump -Path .\frontend -MaxDepth 3
 ```
+
+Mode values are case-insensitive (`Tree`, `tree`, `Dump`, `dump`).
+
+## Example Tree Output
 
 ```powershell
-# Limit the tree to 2 levels deep
-.\git_treeview.ps1 -MaxDepth 2
-```
-
-## Example Output
-```plaintext
 .
 +-- .gitignore
 +-- src
@@ -56,17 +88,59 @@ L-- README.md
 2 directories, 4 files
 ```
 
-## Parameters
-- `-Path`: Starting path for the tree (default: current directory, `.`).
-- `-MaxDepth`: Maximum depth of the tree (default: unlimited).
+## Ignore Behavior
 
-## Notes
-- The script requires a Git repository. Run it from within a repository, or it will error.
-- Paths are normalized to ensure compatibility across operating systems.
-- The script is read-only and does not modify your repository.
+`.gitignore`
+
+All Git ignore rules are respected automatically via `git check-ignore`.
+
+`.git_tree_dumpignore`
+
+You may optionally define a script-specific ignore file at the repository root:
+
+```powershell
+.git_tree_dumpignore
+```
+
+This allows excluding files and folders without modifying `.gitignore`.
+
+### Example
+
+```powershell
+# Local tooling
+todo.md
+setup.ps1
+
+# Generated output
+frontend/dist/
+
+# Asset files
+*.png
+*.mp4
+```
+
+Rules are evaluated after Git ignore rules.
+
+## Parameters
+
+- `-Mode`
+  - `Tree` (default) or `Dump`
+- `-Path`
+  - Starting path for tree or dump (default: .)
+- `-MaxDepth`
+  - Maximum depth to display or dump (default: unlimited)
+
+## Notes  
+
+- Must be run from within a Git repository.
+- Output reflects the current branch only.
+- The script is read-only and never modifies repository contents.
+- Tags are used for versioning; releases are optional.
 
 ## Contributing
+
 Contributions are welcome! Please:
+
 1. Fork the repository.
 2. Create a feature branch (`git checkout -b feature/your-feature`).
 3. Commit your changes (`git commit -m 'Add your feature'`).
@@ -74,7 +148,9 @@ Contributions are welcome! Please:
 5. Open a pull request.
 
 ## License
+
 This project is licensed under the GPL-3.0 license. See the [LICENSE](LICENSE) file for details.
 
 ## Author
+
 Mrflooglebinder
