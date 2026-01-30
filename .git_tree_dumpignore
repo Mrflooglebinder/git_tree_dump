@@ -1,0 +1,57 @@
+# Local tooling
+.git_tree_dumpignore
+todo.md
+
+# Generated / temp
+data/
+LICENSE
+
+# Asset Files (images)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.bmp
+*.tif
+*.tiff
+*.svg
+*.ico
+
+# Asset Files (video)
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.avi
+*.m4v
+
+# Asset Files (audio)
+*.mp3
+*.wav
+*.flac
+*.aac
+*.m4a
+*.ogg
+
+# Asset Files (archives)
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+
+# Asset Files (3D / CAD)
+*.stl
+*.obj
+*.fbx
+*.blend
+*.step
+*.stp
+*.iges
+*.igs
+
+# Asset Files (design / docs)
+*.psd
+*.ai
+*.pdf
