@@ -3,15 +3,14 @@
     Git-tracked tree view OR dump file contents, driven by the Git tree (no hardcoded list).
 
 .DESCRIPTION
-    Mode Tree : prints a directory tree using `git ls-files` as the source.
-    Mode Dump : prints the contents of every Git-tracked file under -Path (optionally depth-limited),
-                excluding anything ignored by Git ignore rules (uses `git check-ignore`) and an optional
-                repo-root script ignore file `.git_tree_dumpignore`.
+    Mode Tree : Prints a directory tree using `git ls-files` as the source.
+    Mode Dump : Prints the contents of every Git-tracked file under -Path.
+                Respects .gitignore and an optional repo-root .git_tree_dumpignore file.
 
 .PARAMETER Mode
-    Tree  = tree view
-    Dump  = dump file contents
-    (case-insensitive: Tree/tree, Dump/dump)
+    Tree  = Hierarchical view (Default)
+    Dump  = File content dump
+    (Case-insensitive)
 
 .PARAMETER Path
     Starting path (must be inside the Git repo). Defaults to current directory.
@@ -25,6 +24,13 @@
 
 .EXAMPLE
     .\git_tree_dump.ps1 -Mode Dump -Path .\frontend -MaxDepth 3
+
+.NOTES
+    Script:     git_tree_dump.ps1
+    Author:     MrFlooglebinder
+    License:    MIT License
+    Source:     https://github.com/MrFlooglebinder/git_tree_dump
+    Copyright:  (c) 2026 MrFlooglebinder
 #>
 [CmdletBinding()]
 param(
@@ -63,6 +69,7 @@ $gitRoot = $gitRootCmd.Trim().Replace('\', '/')
 
 $ScriptIgnoreFile = ".git_tree_dumpignore"
 
+# --- Helper Functions ---
 function Get-RepoRelativePath {
     param([string] $AbsolutePath)
     if ($null -eq $AbsolutePath) { $AbsolutePath = '' }
@@ -188,6 +195,7 @@ function Apply-DepthLimit {
     }
 }
 
+# --- Main ---
 try {
     $startPathAbs = (Resolve-Path -Path $Path).ProviderPath.Replace('\', '/')
 
@@ -254,6 +262,7 @@ try {
         }
     }
 
+    # --- Mode: Tree ---
     if ($Mode -eq 'Tree') {
         $displayRoot = if ($startPathAbs -eq $gitRoot) { "." } else { (Get-RepoRelativePath -AbsolutePath $startPathAbs) }
         Write-Host $displayRoot
@@ -263,12 +272,13 @@ try {
         return
     }
 
+    # --- Mode: Dump ---
     $dumpFiles = Apply-DepthLimit -RelativeFiles $script:gitFiles -BaseRel $startRel
 
     $foundFiles = @()
     $notFoundFiles = @()
 
-    Write-Host ("`n" * 6)
+    Write-Host ("`n" * 1)
 
     foreach ($rel in ($dumpFiles | Sort-Object)) {
         $abs = Join-Path ($gitRoot -replace '/', '\') ($rel -replace '/', '\')
